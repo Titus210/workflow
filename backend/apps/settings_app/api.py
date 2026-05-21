@@ -165,7 +165,7 @@ def get_active_sessions(request):
         for session in sessions
     ]
 
-@router.delete("/sessions/{session_id}/", auth=JWTAuth(), response={204: None, 401: dict, 404: dict})
+@router.delete("/sessions/{session_id}/", auth=JWTAuth(), response={204: None, 400: dict, 401: dict, 404: dict})
 def terminate_session(request, session_id: str):
     """
     Terminate a session.
@@ -176,7 +176,7 @@ def terminate_session(request, session_id: str):
         return 404, {"error": "SESSION_NOT_FOUND", "message": "Session not found", "details": {}}
 
     if session.current:
-        return 404, {"error": "SESSION_NOT_FOUND", "message": "Cannot revoke current session", "details": {}}
+        return 400, {"error": "CURRENT_SESSION", "message": "Cannot revoke current session", "details": {}}
 
     session.delete()
     return 204, None
