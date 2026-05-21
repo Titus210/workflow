@@ -1,5 +1,8 @@
 import pytest
 from apps.accounts.models import User
+from apps.accounts.models import UserSession
+from django.utils import timezone
+from datetime import timedelta
 
 @pytest.mark.django_db
 def test_get_profile(client, admin_token, auth_headers, admin_user):
@@ -147,13 +150,28 @@ def test_get_team_members(client, admin_token, auth_headers):
         # lastActive might be None for newly created users, that's ok
 
 @pytest.mark.django_db
-def test_get_active_sessions(client, admin_token, auth_headers):
+def test_get_active_sessions(client, admin_token, auth_headers, admin_user):
+    # Create a couple of non-current sessions for display purposes.
+    UserSession.objects.create(
+        user=admin_user,
+        device="Safari on iPhone",
+        location="Remote",
+        last_active=timezone.now() - timedelta(hours=2),
+        current=False,
+    )
+    UserSession.objects.create(
+        user=admin_user,
+        device="Firefox on Windows",
+        location="Remote",
+        last_active=timezone.now() - timedelta(days=1),
+        current=False,
+    )
     response = client.get('/settings/sessions/', headers=auth_headers)
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
-    # Should have the mock data we hardcoded
-    assert len(data) == 3
+    # Should include the current session plus the seeded ones
+    assert len(data) >= 3
     session = data[0]
     assert 'id' in session
     assert 'device' in session
@@ -162,6 +180,14 @@ def test_get_active_sessions(client, admin_token, auth_headers):
     assert 'current' in session
 
 @pytest.mark.django_db
-def test_terminate_session(client, admin_token, auth_headers):
-    response = client.delete('/settings/sessions/1/', headers=auth_headers)
+def test_terminate_session(client, admin_token, auth_headers, admin_user):
+    # Create a revokable (non-current) session and revoke it.
+    session = UserSession.objects.create(
+        user=admin_user,
+        device="Firefox on Windows",
+        location="Remote",
+        last_active=timezone.now() - timedelta(hours=5),
+        current=False,
+    )
+    response = client.delete(f'/settings/sessions/{session.id}/', headers=auth_headers)
     assert response.status_code == 204
