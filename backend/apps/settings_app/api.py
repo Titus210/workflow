@@ -2,6 +2,9 @@ from ninja import Router
 from ninja_jwt.authentication import JWTAuth
 from .schemas import UserSchema, ProfileUpdateSchema, PasswordChangeSchema, NotificationPrefsSchema, AppSettingsSchema, SessionSchema
 from django.contrib.auth import get_user_model
+from django.utils import timezone
+from datetime import timedelta
+from apps.accounts.models import UserSession
 
 User = get_user_model()
 
@@ -137,30 +140,29 @@ def get_active_sessions(request):
     """
     Get active sessions.
     """
-    # In a real app, this would come from tracking user sessions
-    # For now, we'll return mock data similar to the frontend mock
+    def humanize(dt):
+        delta = timezone.now() - dt
+        if delta < timedelta(minutes=1):
+            return "just now"
+        if delta < timedelta(hours=1):
+            minutes = int(delta.total_seconds() // 60)
+            return f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+        if delta < timedelta(days=1):
+            hours = int(delta.total_seconds() // 3600)
+            return f"{hours} hour{'s' if hours != 1 else ''} ago"
+        days = delta.days
+        return f"{days} day{'s' if days != 1 else ''} ago"
+
+    sessions = UserSession.objects.filter(user=request.user).order_by("-last_active")
     return 200, [
         {
-            "id": "1",
-            "device": "Chrome on MacOS",
-            "location": "San Francisco, CA",
-            "lastActive": "2 minutes ago",
-            "current": True
-        },
-        {
-            "id": "2",
-            "device": "Safari on iPhone",
-            "location": "San Francisco, CA",
-            "lastActive": "2 hours ago",
-            "current": False
-        },
-        {
-            "id": "3",
-            "device": "Firefox on Windows",
-            "location": "New York, NY",
-            "lastActive": "1 day ago",
-            "current": False
+            "id": str(session.id),
+            "device": session.device,
+            "location": session.location or "Unknown",
+            "lastActive": humanize(session.last_active),
+            "current": session.current,
         }
+        for session in sessions
     ]
 
 @router.delete("/sessions/{session_id}/", auth=JWTAuth(), response={204: None, 401: dict, 404: dict})
@@ -168,6 +170,13 @@ def terminate_session(request, session_id: str):
     """
     Terminate a session.
     """
-    # In a real app, this would invalidate the session/token
-    # For now, we'll just return 204
+    try:
+        session = UserSession.objects.get(id=session_id, user=request.user)
+    except UserSession.DoesNotExist:
+        return 404, {"error": "SESSION_NOT_FOUND", "message": "Session not found", "details": {}}
+
+    if session.current:
+        return 404, {"error": "SESSION_NOT_FOUND", "message": "Cannot revoke current session", "details": {}}
+
+    session.delete()
     return 204, None
