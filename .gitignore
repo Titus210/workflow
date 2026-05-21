@@ -1,0 +1,25 @@
+__pycache__/
+*.py[cod]
+*.pyo
+
+# env
+.env
+.env.*
+.venv/
+venv/
+
+# others
+backend/venv/
+backend/db.sqlite3
+*.sqlite3
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+backend/config/__pycache__/
+
+# frontend
+frontend/node_modules/
+frontend/dist/
