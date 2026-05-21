@@ -1,0 +1,1 @@
+Long-term fix instead of filtered output, the next step would be upgrading django-ninja / ninja-extra to versions that have fully migrated away from class-based Pydantic config. I can help you do that next, but it may require dependency updates and compatibility checks.

@@ -15,6 +15,24 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
+
+    should_seed = (
+        len(sys.argv) > 1
+        and sys.argv[1] == 'runserver'
+        and os.getenv('RUN_MAIN') != 'true'
+        and os.getenv('AUTO_SEED_MOCK_DATA', 'True') == 'True'
+    )
+
+    if should_seed:
+        try:
+            import django
+            from django.core.management import call_command
+
+            django.setup()
+            call_command('seed_mock_data')
+        except Exception as exc:
+            print(f"Skipping mock data seeding: {exc}", file=sys.stderr)
+
     execute_from_command_line(sys.argv)
 
 
