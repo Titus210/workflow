@@ -1,6 +1,7 @@
 __pycache__/
 *.py[cod]
 *.pyo
+*.tsbuildinfo
 
 # env
 .env
