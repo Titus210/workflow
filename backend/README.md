@@ -126,6 +126,19 @@ python manage.py createsuperuser
 python manage.py runserver 0.0.0.0:8000
 ```
 
+### Seeded dev data
+
+When you start the dev server (`python manage.py runserver ...`), the backend auto-seeds a small set of demo data (controlled by `AUTO_SEED_MOCK_DATA`, default `True`):
+
+- Users:
+  - `admin@example.com` / `adminpass123`
+  - `reviewer@example.com` / `reviewerpass123`
+  - `applicant@example.com` / `applicantpass123`
+- Applications: `MOCK-APP-001` .. `MOCK-APP-006`
+- Sessions: a “current session” row for the logged-in user plus a couple of extra sessions for the admin user (for testing revoke UX)
+
+You can also run it manually with `python manage.py seed_mock_data`.
+
 The API will be available at `http://localhost:8000/api/v1/`
 
 ## API Endpoints
