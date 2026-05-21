@@ -5,6 +5,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from apps.applications.models import ActivityLogEntry, Application
+from apps.accounts.models import UserSession
 
 
 class Command(BaseCommand):
@@ -213,3 +214,21 @@ class Command(BaseCommand):
                     f"{'Created' if created else 'Updated'} application {row['tracking_number']}"
                 )
             )
+
+        # Seed a couple of non-current sessions for the admin user for UI testing.
+        admin_user = created_users["admin@example.com"]
+        UserSession.objects.filter(user=admin_user, current=False).delete()
+        UserSession.objects.create(
+            user=admin_user,
+            device="Safari on iPhone",
+            location="Remote",
+            last_active=timezone.now() - timedelta(hours=2),
+            current=False,
+        )
+        UserSession.objects.create(
+            user=admin_user,
+            device="Firefox on Windows",
+            location="Remote",
+            last_active=timezone.now() - timedelta(days=1),
+            current=False,
+        )
