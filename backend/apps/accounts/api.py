@@ -2,7 +2,7 @@ from ninja import Router
 from ninja_jwt.authentication import JWTAuth
 from ninja_jwt.tokens import RefreshToken
 from .schemas import UserSchema, LoginSchema, TokenSchema, UserUpdateSchema
-from apps.accounts.models import User
+from apps.accounts.models import User, UserSession
 from django.utils import timezone
 
 
@@ -26,6 +26,20 @@ def login(request, data: LoginSchema):
     # Update last_active
     user.last_active = timezone.now()
     user.save(update_fields=['last_active'])
+
+    # Track a simple "current session" row per user for the settings UI.
+    # Note: JWT remains stateless; this is for display/revoke UX.
+    device = request.META.get("HTTP_USER_AGENT", "Unknown device")[:255]
+    session, created = UserSession.objects.get_or_create(
+        user=user,
+        current=True,
+        defaults={"device": device, "location": "Local", "last_active": timezone.now()},
+    )
+    if not created:
+        session.device = device
+        session.last_active = timezone.now()
+        session.save(update_fields=["device", "last_active"])
+
     # Generate JWT tokens using ninja_jwt
     refresh = RefreshToken.for_user(user)
     return {
