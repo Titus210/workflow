@@ -4,7 +4,7 @@ import { Card } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { Toggle } from '../ui/Toggle';
-import { changePassword, getActiveSessions } from '../../api/settingsApi';
+import { changePassword, getActiveSessions, deleteActiveSession } from '../../api/settingsApi';
 export function SecurityTab() {
   const [passwordData, setPasswordData] = useState({
     current: '',
@@ -41,9 +41,9 @@ export function SecurityTab() {
         new: '',
         confirm: ''
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to change password:', error);
-      toast.error('Failed to change password');
+      toast.error(error?.message || 'Failed to change password');
     }
   };
   return (
@@ -139,7 +139,15 @@ export function SecurityTab() {
               {!session.current &&
             <Button
               variant="danger"
-              onClick={() => toast.success('Session revoked')}>
+              onClick={async () => {
+                try {
+                  await deleteActiveSession(session.id);
+                  toast.success('Session revoked');
+                  loadSessions();
+                } catch (error: any) {
+                  toast.error(error?.message || 'Failed to revoke session');
+                }
+              }}>
               
                   Revoke
                 </Button>
