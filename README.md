@@ -1,6 +1,10 @@
 # IP Workflow Tracker
 
 A complete full-stack application for managing Intellectual Property workflows featuring a Django + Django Ninja backend and React + Vite frontend.
+# Author 
+Name: Titus Kiplagat
+Email: tituskiplagat06@gmail.com
+Github: https://github.com/Titus210
 
 ## 🚀 Quick Start
 
@@ -69,20 +73,20 @@ For detailed information, please refer to:
 - API documentation (Ninja API) showing endpoints
 - Django admin interface showing models
 - Example of successful API responses
-![alt text](image-9.png)
+![alt text](./docs/image-9.png)
 ![alt text](image-10.png)
 ### Frontend Pages
 - Login page
 ![alt text](image.png)
 - Dashboard with statistics and charts
-![alt text](image-3.png)
+![alt text](./docs/image-3.png)
 - Application list and detail views
 ![alt text](image-4.png)
 ![alt text](image-5.png)
 - Kanban board showing workflow states
 ![alt text](image-6.png)
 - Settings management pages
-![alt text](image-8.png)
+![alt text](./docs/image-8.png)
 
 ### Deployment
 - Docker containers running
