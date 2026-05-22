@@ -64,22 +64,27 @@ For detailed information, please refer to:
 
 ## 📸 Screenshots
 
-Please add screenshots of the application in the `docs/` folder of each respective module (backend, frontend) to illustrate:
 
-### Backend Suggestions
-- API documentation (Swagger UI) showing endpoints
+### Backend 
+- API documentation (Ninja API) showing endpoints
 - Django admin interface showing models
 - Example of successful API responses
-
-### Frontend Suggestions
+![alt text](image-9.png)
+![alt text](image-10.png)
+### Frontend Pages
 - Login page
+![alt text](image.png)
 - Dashboard with statistics and charts
+![alt text](image-3.png)
 - Application list and detail views
+![alt text](image-4.png)
+![alt text](image-5.png)
 - Kanban board showing workflow states
+![alt text](image-6.png)
 - Settings management pages
-- Mobile responsive views
+![alt text](image-8.png)
 
-### Deployment Suggestions
+### Deployment
 - Docker containers running
 - Database schema diagrams
 - Architecture overview
